@@ -28,11 +28,11 @@ const [selectedTasks, setSelectedTasks] = useState([]);
 //reference for menu container
 const menuRef = useRef(null);
 
-const API_URL = "http://localhost:5000/api/tasks";
+const API_URL = "https://todo-list-2-i4b4.onrender.com/api/tasks";
 
 //fetch tasks from backened when app loads
 useEffect(() => {
-  fetch(API_URL)
+  fetch(`${API_URL}`)
     .then(res => res.json())
     .then(data => setTasks(data))
     .catch(err => console.log("Error fetching tasks:", err));
@@ -45,7 +45,7 @@ const addTask = async (e) => {
  if (newTask.trim() === "") return;
 
  try{
-  const res = await fetch(API_URL, {
+  const res = await fetch(`${API_URL}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text: newTask }),
