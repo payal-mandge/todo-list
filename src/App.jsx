@@ -45,14 +45,14 @@ const addTask = async (e) => {
   if (newTask.trim() === "") return;
 
   try {
-    await fetch(API_URL, {
+    await fetch(`${API_URL}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: newTask }),
     });
 
     // fetch sorted list again
-    const res = await fetch(API_URL);
+    const res = await fetch(`${API_URL}`);
     const sortedTasks = await res.json();
     setTasks(sortedTasks);
 
@@ -75,7 +75,7 @@ const toggleTask = async (id, completed) => {
   const updated = await res.json();
 
   //After update ->fetch fresh sorted list from backend
-  const tasksRes = await fetch(API_URL);
+  const tasksRes = await fetch(`${API_URL}`);
   const sortedTasks = await tasksRes.json();
   
   setTasks(sortedTasks);
