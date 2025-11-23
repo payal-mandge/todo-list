@@ -42,22 +42,27 @@ useEffect(() => {
 
 const addTask = async (e) => {
   e.preventDefault();
- if (newTask.trim() === "") return;
+  if (newTask.trim() === "") return;
 
- try{
-  const res = await fetch(`${API_URL}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text: newTask }),
-  });
-  const data = await res.json();
-  setTasks([...tasks, data]); //add new task to array
-  setNewTask(""); //clear input box
-  inputRef.current.focus(); //refocus input after adding
-} catch (err) {
-  console.log("Error adding task:", err);
-}
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: newTask }),
+    });
+
+    // fetch sorted list again
+    const res = await fetch(API_URL);
+    const sortedTasks = await res.json();
+    setTasks(sortedTasks);
+
+    setNewTask("");
+    inputRef.current?.focus();
+  } catch (err) {
+    console.log("Error adding task:", err);
+  }
 };
+
  
 //toggle task completion
 const toggleTask = async (id, completed) => {
