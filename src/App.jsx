@@ -67,12 +67,14 @@ const toggleTask = async (id, completed) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ completed: !completed }),
   });
-  //const updatedTasks = [...tasks];
-  //updatedTasks[index].completed = !updatedTasks[index].completed; 
   const updated = await res.json();
-  console.log("Updated task:", updated);
-  setTasks(tasks.map(t => (t._id === id ? updated : t)));
+
+  //After update ->fetch fresh sorted list from backend
+  const tasksRes = await fetch(API_URL);
+  const sortedTasks = await tasksRes.json();
   
+  setTasks(sortedTasks);
+
 }catch (err) {
   console.error("Error updating task:", err);
 }
