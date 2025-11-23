@@ -47,7 +47,7 @@ mongoose
  //get all tasks
  app.get("/api/tasks", async (req, res) => {
   try {
-    const tasks = (await Task.find()).sort({ completed: 1, _id: 1 });
+    const tasks = await Task.find().sort({ completed: 1, _id: 1 });
     res.json(tasks);
   }catch (err) {
     res.status(500).json({ error: "Failed to fetch tasks" });
