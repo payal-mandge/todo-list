@@ -72,16 +72,7 @@ const toggleTask = async (id, completed) => {
   const updated = await res.json();
   console.log("Updated task:", updated);
   setTasks(tasks.map(t => (t._id === id ? updated : t)));
-
-  //if the task was just marked competed, move to bottom after 10 s
-  if (!completed) {
-    setTimeout(() => {
-      setTasks(prevTasks => {
-        const withoutTask = prevTasks.filter(t => t._id !== id);
-        return [...withoutTask, updated]; //move to end
-      });
-    }, 10000);
-  }
+  
 }catch (err) {
   console.error("Error updating task:", err);
 }
