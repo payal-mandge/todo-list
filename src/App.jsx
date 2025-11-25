@@ -86,7 +86,11 @@ const toggleTask = async (id, completed) => {
 }; 
 
 //filter tasks if hide completed is true
-const visibleTasks = hideCompleted ? tasks.filter((task) => !task.completed) : tasks;
+const sorted = [...tasks].sort((a, b) => {
+  if (a.completed === b.completed) return 0;
+  return a.completed ? 1 : -1; //completed goes last
+});
+const visibleTasks = hideCompleted ? sorted.filter(task => !task.completed) : sorted;
 
 //toggle edit mode
 const handleEditToggle = () => {
@@ -96,13 +100,14 @@ const handleEditToggle = () => {
 };
 
 //select/ unselect tasks for deletion
-const handleTaskSelect = (index) => {
-  if (selectedTasks.includes(index)) {
-    setSelectedTasks(selectedTasks.filter((i) => i !== index));
+const handleTaskSelect = (taskId) => {
+  if (selectedTasks.includes(taskId)) {
+    setSelectedTasks(selectedTasks.filter(id => id !== taskId));
   } else {
-    setSelectedTasks([...selectedTasks, index]);
+    setSelectedTasks([...selectedTasks, taskId]);
   }
 };
+
 
 //delete selected tasks
 const deleteTask = async (id) => {
@@ -143,7 +148,8 @@ return(
           if (selectedTasks.length === visibleTasks.length) {
             setSelectedTasks([]); //deselect all
           } else {
-            setSelectedTasks(visibleTasks.map((_, i) => i)); //select all visible
+            setSelectedTasks(visibleTasks.map(task => task._id));
+ //select all visible
           }
         }}
       >
@@ -200,7 +206,6 @@ return(
 
 {!editMode && (
   <div className="input-area">
-  <checkbox ></checkbox>
 
     <input
     ref={inputRef} 
@@ -234,20 +239,23 @@ return(
       <span className="task-text">{task.text}</span>
 
       {/* delete button on right */}
+      {!editMode && (
       <button 
-        className="delete-btn"
+        className="row-delete-btn"
         onClick={() => deleteTask(task._id)}
         title="Delete task">
           <FaTrash />
-            </button> 
+            </button>
+      )} 
 
 {/*right:  checkbox for selecting tasks only in edit mode */}
       {editMode && (
-        <div className="select-delete">
+        <div className="select-delete"
+        >
         <input 
         type="checkbox"
-        checked={selectedTasks.includes(index)}
-        onChange={() => handleTaskSelect(index)} 
+        checked={selectedTasks.includes(task._id)}
+        onChange={() => handleTaskSelect(task._id)} 
         />
         </div>
       )}
@@ -259,16 +267,31 @@ return(
 
   {/*bottom delete button (only visible in edit mode) */}
     {editMode && selectedTasks.length > 0 && (
-      <div className="delete-bar">
+      <div className="delete-bar show">
         <button 
           className="delete-btn"
           onClick={async () => {
-            for (let index of selectedTasks) {
-              const taskId = visibleTasks[index]._id;await deleteTask(taskId);
-            }
-            selectedTasks([]); //clear after delete
-          }} >
-            <FaTrash />
+  
+  try {
+    //delete each selected task (by task id)
+
+  for (let taskId of selectedTasks) {
+    await deleteTask(taskId);
+  }
+  //refresh tasks after deletion
+  const res = await fetch(API_URL);
+  const updatedTasks = await res.json();
+  setTasks(updatedTasks);
+
+  //clear selection
+  setSelectedTasks([]); // reset selection
+}catch (err) {
+  console.error("Bulk delete failed:", err);
+}
+          }}
+
+   >
+<FaTrash />
           </button>
         </div>
     )}
